@@ -1,8 +1,6 @@
--------------------------------------------
-   Paddle Wars: Paddle's of Furry!
--------------------------------------------
+# Paddle Wars: Paddle's of Furry!
 
-Here is an explanation of the contents of this CD.
+Here is an explanation of the contents of this repo.
 
 	- Program - Contains all The files related to the program/Applet.
 		|
@@ -26,11 +24,3 @@ Here is an explanation of the contents of this CD.
 
 	- Documentation - Contains all the documentation which accompanies our program.
 
-
-------
-Note: There is an onlie site which accompanies our game, which can be accessed through ethier of the following adresses;
-		- http://www.paddlewars.tk
-		- http://members.optusnet.com.au/otta2
-	However, due to html problems, some of the resources will not be displayed correctly on the online version, namley
-	the missiles, the brick wall image for practice mode, and the yellow paddle Image.
-------
