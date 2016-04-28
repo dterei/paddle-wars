@@ -1,0 +1,1872 @@
+<!-- This document is IE6, and NS7.1 compliant
+
+
+
+The contents within this document are 100% copyright (c) 2003 to Richard Moyer.
+This document may be re-distributed freely, but only as long as this copyright
+notice stays intact.
+
+This document uses JavaScript for it's parsing and displaying of information.
+If you have any questions or comments on any part of the code used herein, then
+e-mail them to beowulffromfft@hotmail.com.
+
+
+
+For Version information, refer to the ReadMe.txt file included in the .zip
+archive.
+
+
+-->
+
+
+
+
+
+
+
+<title>Eternity Angels' Scan Manager</title>
+
+<script>
+
+// Static variables. These variables are for confirmation.
+
+var ppp = 50;
+var rps = 200;
+var exclude_systems = " ";
+var textexclude_systems = "None";
+var exc_data = '<a href="#" onclick="exc_preset();showbox(\'excsys\',10,0);return false;" title="None" onmouseover="this.title = textexclude_systems;">Excluded Systems</a>';
+var existing_planets = "@Volcanic@Terran@Ocean@Mountainous@Jungle@Desert@Cratered@Arctic@";
+var high_land = "";
+var high_nw = "";
+var low_land = "";
+var low_nw = "";
+var pname = new Array();
+var pcord = new Array();
+var ploc = new Array();
+var pplanet = new Array();
+var pland = new Array();
+var pnw = new Array();
+var pratio = new Array();
+var pgland = new Array();
+var pgnw = new Array();
+var fname = new Array();
+var floc = new Array();
+var fcord = new Array();
+var fplanet = new Array();
+var fland = new Array();
+var fnw = new Array();
+var fratio = new Array();
+var fgland = new Array();
+var fgnw = new Array();
+var sname = new Array();
+var sloc = new Array();
+var scord = new Array();
+var splanet = new Array();
+var sland = new Array();
+var snw = new Array();
+var sratio = new Array();
+var sgland = new Array();
+var sgnw = new Array();
+var lastsearch = "@";
+
+var planetnums = new Array(0,0,0,0,0,0,0,0);
+
+
+// Highlighting variables.
+
+var highlight_color = "#555511";
+var highlight_mouseover = "#336600";
+var high_planets = "@";
+
+// Cookie Data
+
+var cooset = new Array(ppp,rps,"visible",exclude_systems);
+if (document.cookie != "" && document.cookie.substring(0,4) == "easm") {
+  cooset = unescape(document.cookie);
+  cooset = cooset.split("=");
+  cooset = cooset[1].split("@");
+}
+ppp = Number(cooset[0]);
+rps = Number(cooset[1]);
+exclude_systems = cooset[3];
+
+</script>
+
+<style>
+body { scrollbar-base-color:#555555;scrollbar-arrow-color:white;margin:0px;margin-left:10px;border:0px; }
+A:link { color:#22FFFF;font-weight:bold;text-decoration:none; }
+A:visited { color:#22FFFF;font-weight:bold;text-decoration:none; }
+A:hover { color:#22FFFF;font-weight:bold;text-decoration:none; }
+A.top:link { color:#DDFFDD;font-weight:bold;text-decoration:none; }
+A.top:visited { color:#DDFFDD;font-weight:bold;text-decoration:none; }
+A.top:hover { color:#DDFFDD;font-weight:bold;text-decoration:none; }
+.table { color:white;font-family:verdana;font-size:10px;border-width:0px; }
+.table2 { color:white;font-family:verdana;font-size:10px;border-width:0px; }
+.td2 { border-width:0px; }
+.button { color:white;background-color:#333333;border-color:#777777;border-width:2px;font-family:verdana;font-size:12px; }
+.textarea { color:black;background-color:#DDDDDD;font-family:verdana;font-size:10px;border-width:0px;width:160px;height:90px; }
+.higharea { color:black;background-color:#FFFFEE;font-family:verdana;font-size:9px;border-width:0px;width:320px;height:90px; }
+.input { color:black;background-color:#EEEEEE;font-family:verdana;font-size:10px;border-width:2px;border-style:solid;border-color:#CCCCCC;width:60px; }
+.input2 { color:black;background-color:#EEEEEE;font-family:verdana;font-size:10px;border-width:2px;border-style:solid;border-color:#CCCCCC; }
+.dropdown { color:white;background-color:black;font-family:verdana;font-size:10px; }
+.status { color:white;font-family:verdana;font-size:10px; }
+.copy { color:#AAAAAA;font-family:arial;font-size:10px; }
+.nomore { color:#999999; }
+.ops { color:white;background-color:#000044;font-family:verdana;font-size:10px;border-style:solid;border-width:2px;border-color:#111188; }
+.exops { color:white;background-color:#000000;font-family:verdana;font-size:10px; }
+.extab { color:white;background-color:#000044;font-family:verdana;font-size:10px;border-style:solid;border-width:2px;border-color:#111188; }
+</style>
+
+<body bgcolor="black" text="white" onload="document.getElementById('data').value='';document.getElementById('comdata').value='';exc_preset();">
+
+<table bgcolor=black width=720 class="table" cellpadding=2 cellspacing=3 border=0>
+<tr><td class="td2" align=center colspan=2 bgcolor="#555555"><b>Status:</b></td>
+
+<script>
+document.write('<td id="hdtop" align=center width=330 bgcolor="#555555" style="visibility:'+cooset[2]+';"><b>Highlighted</b></td>');
+</script>
+
+</tr>
+<tr><td class="td2" width=120 bgcolor="#333333">Database Loaded: </td><td bgcolor="#333333"><span id="db1">No</span></td>
+
+<script>
+document.write('<td id="hdbot" rowspan=6 width=330 valign=top align=center style="visibility:'+cooset[2]+';"><textarea id="highs" class="higharea" readonly onfocus="this.select();">Highlighted Planets Will Appear Here.</textarea><td>');
+</script>
+
+</tr>
+
+<!--... Top values ...-->
+
+<tr><td class="td2" width=120 bgcolor="#333333">Comparison Loaded: </td><td bgcolor="#333333" width=216><span id="gdb1">No</span></td></tr>
+<tr><td class="td2" width=120 bgcolor="#333333"># of Planets: </td><td bgcolor="#333333" width=216><span id="db2">0</span></td></tr>
+<tr><td class="td2" width=120 bgcolor="#333333">Land Range: </td><td bgcolor="#333333" width=216><span id="db3">0 - 0</span></td></tr>
+<tr><td class="td2" width=120 bgcolor="#333333">Networth Range: </td><td bgcolor="#333333" width=216><span id="db4">0 - 0</span></td></tr>
+</table>
+
+<!--... Paste box and search options ...-->
+
+<table bgcolor="black" width=720 class="table" cellpadding=0 cellspacing=0 border=0>
+<tr>
+<td width=160 bgcolor="#222222">
+<textarea id="data" class="textarea" onfocus="this.select();"></textarea>
+</td>
+<td width=190 bgcolor="#222222" align=center valign=top style="line-height:14px;">
+<a href="#" class="top" onclick="changetool(0);return false;">Basic Search</a><br>
+<a href="#" class="top" onclick="changetool(1);return false;">Find Perfect Target</a><br>
+<a href="#" class="top" onclick="changetool(2);return false;">Search By Name</a><br>
+<a href="#" class="top" onclick="changetool(3);return false;">Search By System</a><br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#" onclick="showbox('compare',10,0);return false;">Compare Scans</a>
+</td>
+
+<script>
+document.write('<td id="hdhel" rowspan=2 bgcolor=black align=left valign=top style="visibility:'+cooset[2]+';">&nbsp;&nbsp;<a href="#" onclick="showbox(\'highhelp\',10,0);return false;">Highlighting Help</a></td>');
+</script>
+
+</tr>
+<tr>
+<td>
+<input id="load1" class="button" type="button" value="Load" onclick="upload(document.getElementById('data').value);" style="width:77px;">
+<input id="load2" class="button" type="button" value="Unload" disabled onclick="unload();" style="width:77px;">
+</td>
+<td align=right bgcolor="#222222">
+<a href="#" onclick="showbox('help',10,0);return false;">Search Help</a> &nbsp;&nbsp;&nbsp; <a href="#" onclick="showops();return false;">Options</a>&nbsp;&nbsp;
+</td>
+</tr>
+</table>
+
+<!--... SPAN where data will be displayed ...-->
+
+<p align=left class="status">
+<span id="tools">&nbsp;</span>
+<p align=left class="status">
+<span id="stat">Results will appear here.</span>
+<p align=right class="copy">
+©2003 Rich Innovations.
+<br><br><br>
+
+
+
+
+
+
+<!--... Search options DIV element ...-->
+
+<div id="ops" class="ops" style="visibility:hidden;width:188;height:122;position:absolute;left:-250px;top:-250px;">
+<table class="table" cellspacing=0 cellpadding=2 width=100%>
+<tr>
+<td colspan=2 align=center>
+<b>Scan Details</b>
+</td>
+</tr>
+<tr>
+<td>
+Planets Per Page: 
+</td>
+<td>
+<input id="pppbox" maxlength=4 class="input" type="text" value="50">
+</td>
+</tr>
+<tr>
+<td>
+Max Per Search:
+</td>
+<td>
+<input id="rpsbox" maxlength=4 class="input" type="text" value="200">
+</td>
+</tr>
+<tr>
+<td colspan=2>
+
+<script>
+document.write('<input id="highon" type=checkbox ');
+if (cooset[2] == "visible") document.write("checked ");
+document.write('onclick="changestats(document.getElementById(\'pppbox\').value,document.getElementById(\'rpsbox\').value);hideops();highlighting_onoff(this.checked);"> Highlighting');
+</script>
+
+</td>
+</tr>
+<tr>
+<td colspan=2 align=center>
+<input class="button" type="button" value="Submit" onclick="changestats(document.getElementById('pppbox').value,document.getElementById('rpsbox').value);">
+</td>
+</tr>
+<tr>
+<td align=right colspan=2>
+<a href="#" onclick="hideops();return false;">Close</a>
+</td>
+</tr>
+</table>
+</div>
+
+<!--... Excluded Systems DIV element ...-->
+
+<div id="excsys" class="exops" style="visibility:hidden;width:692;height:235;position:absolute;left:-1000px;top:-1000px;">
+<br><br><br><br>
+<form onsubmit="set_exclude(document.getElementById('excinput').value);return false;">
+<table class="extab" cellspacing=0 cellpadding=2 width=360>
+<tr>
+<td colspan=2 align=center>
+<b>Excluded Systems</b>
+</td>
+</tr><tr>
+<td>
+<input id="excinput" class="input2" type=text maxlength=200 style="width:265;" ondblclick="this.value='';">
+</td>
+<td>
+<input type=submit class="button" value=" Set "> <a href="#" onclick="showbox('exchelp',10,0);return false;">Help</a>
+</td>
+</tr><tr>
+<td colspan=2>
+<br><p align=left><b>L i s t :</b>&nbsp;&nbsp; <span id="exclist">None</span>
+</td>
+</tr>
+<tr>
+<td colspan=2 align=right>
+<a href="#" onclick="hidebox('excsys');exc_preset();return false;">Close</a>
+</td>
+</tr>
+</table>
+</form>
+</div>
+
+<!--... Excluded Systems Help ...-->
+
+<div id="exchelp" class="ops" style="visibility:hidden;width:460;height:235;position:absolute;left:-1000px;top:-1000px;">
+<br><br>
+• <b>This extension will take Systems</b> you specify, then exclude them from any search you perform.<br>
+Write the Systems in a G:S fashion, with either a comma-space, or just a space separator (eg. 3:10, 4:30 1:9 2:4).
+<br><br>
+• <b>To delete a System from the list</b>, simply erase it from the input box, and hit "Set" again. It will re-evaluate
+the input and set only the Systems in the box.
+<p align="right">
+<a href="#" onclick="hidebox('exchelp',true);return false;">Close</a>
+</div>
+
+<!--... Search Help DIV element ...-->
+
+<div id="help" class="ops" style="visibility:hidden;width:460;height:235;position:absolute;left:-1000px;top:-1000px;">
+<table width=100% class="table" cellpadding=2 cellspacing=0 border=0>
+<tr><td align=center><b>Help With Use</b></td></tr>
+<tr>
+<td align=left>
+• <b>To load a database</b> you must first do the Gravity Scan as you normally would.
+Then you must copy the entire page, and paste it into the gray-ish box, just above the 'Load'
+button. Next, click the 'Load' button, and wait a few seconds. Now the Database should be loaded.
+<a href="#" onclick="showbox('probhelp',10,0);return false;">Problems?</a>
+<br><br>
+• <b>To perform a Scan</b>, simply click on the kind of search option provided. Each search option
+is different, and will obviously return different results. Each search option is fairly straight-forward,
+and you should have no trouble identifying what each does.
+<a href="#" onclick="showbox('probhelp2',10,0);return false;">Problems?</a>
+<br><br>
+• <b>To report bugs</b>, you can contact me on AIM (<a href="aim:goim?screenname=Furdabip">Furdabip</a>), or through my e-mail, which is
+<a href="mailto:beowulffromfft@hotmail.com">beowulffromfft@hotmail.com</a>. Please try to include where
+the bug occured, and what you did to make it go wrong.
+</td>
+</tr>
+<tr>
+<td align=right>
+<br>
+<a href="#" onclick="hidebox('help');return false;">Close</a>
+</td>
+</tr>
+</table>
+</div>
+
+<!--... Problems Help with loading a Database ...-->
+
+<div id="probhelp" class="ops" style="visibility:hidden;width:460;height:235;position:absolute;left:-1000px;top:-1000px;">
+<br><br>
+• <b>The main problem</b> with loading a Database is some computers copy the Scan without the new-line characters.
+This script uses these characters to check each line, and returns errors without them.<br>There currently
+is no known way to fix this, but possibly pasting the results into a text document first, then into the
+box might work.
+<p align="right">
+<a href="#" onclick="hidebox('probhelp',true);return false;">Close</a>
+</div>
+
+<!--... Problems Help with performing a Scan ...-->
+
+<div id="probhelp2" class="ops" style="visibility:hidden;width:460;height:235;position:absolute;left:-1000px;top:-1000px;">
+<br><br>
+• <b>If a certain scan</b> returns results that are too many for the script, then you will be alerted. You can change this,
+by clicking on the "Options" link, and setting the "Max Per Search" value.<br><b>Please note</b>, though, that if you have
+a slow proccessor, or low amounts of RAM, then the higher this setting, the longer your search will take.
+<br><br>Also, if a certain Scan doesn't seem to be returning the results you want, try a different one.
+<p align="right">
+<a href="#" onclick="hidebox('probhelp2',true);return false;">Close</a>
+</div>
+
+<!--... Comparative Scanning DIV element ...-->
+
+<div id="compare" class="ops" style="visibility:hidden;width:460;height:235;position:absolute;left:-1000px;top:-1000px;">
+<table width=100% class="table" cellpadding=2 cellspacing=0 border=0>
+<tr><td align=center colspan=3><b>Comparative Scan</b></td></tr>
+<tr>
+<td align=left valign=top width=164>
+<b>Previous Scan:</b><br>
+<textarea id="comdata" class="textarea" onfocus="this.select();"></textarea><br>
+<input id="com1" class="button" type="button" disabled value="Load" onclick="comparestats(document.getElementById('comdata').value);" style="width:77px;">
+<input id="com2" class="button" type="button" disabled value="Unload" onclick="gunload();" style="width:77px;">
+</td>
+<td align=left valign=top width=42>
+<br><br>
+&nbsp;&nbsp;<b>Help:</b>
+</td>
+<td valign=top>
+<br><br>
+This addition is to allow you to compare two Gravity Scans from different times. To
+properly use it, you <i>must</i> first upload the newest version of the Scan normally.
+Once that is uploaded, paste the old Scan here, and click "Load."<br>Now when you scan,
+you will get details relating to how much Land a certain Planet gained or lost.<br><br>
+<a href="#" onclick="showbox('probhelp3',10,0);return false;">Problems?</a>
+</td>
+</tr>
+<tr>
+<td align=right colspan=3>
+<br>
+<a href="#" onclick="hidebox('compare');return false;">Close</a>
+</td>
+</tr>
+</table>
+</div>
+
+<!--... Comparative Scanning Help ...-->
+
+<div id="probhelp3" class="ops" style="visibility:hidden;width:460;height:235;position:absolute;left:-1000px;top:-1000px;">
+<br><br>
+• <b>If you do not understand</b> the directions, then here they are in full:<br><br>
+You must save a Gravity Scan from a previous time, into a plain text document. NotePad works great.
+Now you must perform a new Gravity Scan, and then paste the results into the original box. Once the
+newer Scan is uploaded, you can then click on "Compare Scans," and another box will appear. In this box,
+paste the old Scan that you saved into a document somewhere. Click "Load." Now when you search, you
+will be shown Land and NW differences.<br><br><br>
+• <b>If you can't get it to work</b>, then the problem might be that you saved the old scan in a file that cuts
+back on extra spaces. Every Windows® operating system has "NotePad," so if you are running Windows®, simply
+go to "Start --> Run" then type in "notepad," hit [Enter], and a new document should appear.
+<p align="right">
+<a href="#" onclick="hidebox('probhelp3',true);return false;">Close</a>
+</div>
+
+<!--... Highlighting Help ...-->
+
+<div id="highhelp" class="ops" style="visibility:hidden;width:460;height:235;position:absolute;left:-1000px;top:-1000px;">
+<br><br>
+• <b>The Highlighting Tool</b> allows you to easily list off the Planets you might want to attack,
+or just make them more visible. To highlight a Planet, just click it's Table line after a search,
+and the Planet name, location, Land, and NW will be added to the highlight box. To dehighlight a
+Planet, just click their name again, and they will no longer appear.<br><br>
+• <b>To disable Highlighting</b>, then click on "Options" and then uncheck the "Highlighting" Checkbox.
+Because of the amount of coding each line uses, it is highly recommended that you disable Highlighting
+if you have a slow processor. Also, when disabling and enabling Highlighting, keep in mind that any
+search results you may have displayed, will be re-evaluated to reset the script.
+<p align="right">
+<a href="#" onclick="hidebox('highhelp');return false;">Close</a>
+</div>
+
+<!--... Planet data, related to Database ...-->
+
+<div id="planetsused" class="ops" style="visibility:hidden;width:460;height:235;position:absolute;left:-1000px;top:-1000px;">
+<br><br>
+<table class="table" width=70% cellpadding=2 cellspacing=1 border=0 align=center>
+<tr><td><b>Planet</b></td><td><b># used</b></td><td><b>% of Total</b></td></tr>
+<tr><td width=120>Arctic</td><td><span id="parctic">&nbsp;</span></td><td><span id="tarctic">&nbsp;</span></td></tr>
+<tr><td width=120>Cratered</td><td><span id="pcratered">&nbsp;</span></td><td><span id="tcratered">&nbsp;</span></td></tr>
+<tr><td width=120>Desert</td><td><span id="pdesert">&nbsp;</span></td><td><span id="tdesert">&nbsp;</span></td></tr>
+<tr><td width=120>Jungle</td><td><span id="pjungle">&nbsp;</span></td><td><span id="tjungle">&nbsp;</span></td></tr>
+<tr><td width=120>Mountainous</td><td><span id="pmountainous">&nbsp;</span></td><td><span id="tmountainous">&nbsp;</span></td></tr>
+<tr><td width=120>Ocean</td><td><span id="pocean">&nbsp;</span></td><td><span id="tocean">&nbsp;</span></td></tr>
+<tr><td width=120>Terran</td><td><span id="pterran">&nbsp;</span></td><td><span id="tterran">&nbsp;</span></td></tr>
+<tr><td width=120>Volcanic</td><td><span id="pvolcanic">&nbsp;</span></td><td><span id="tvolcanic">&nbsp;</span></td></tr>
+</table>
+<p align="right">
+<a href="#" onclick="hidebox('planetsused');return false;">Close</a>
+</div>
+
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+
+function set_cookie_data() {
+
+  /***********************************************/
+  /** Function:  set_cookie_data()              **/
+  /** Input   :  N/A                            **/
+  /**                                           **/
+  /** Purpose :  To set the user-specified data **/
+  /**            to a cookie for later use.     **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // Standard JS cookie.
+
+  var cookiedata = ppp+"@"+rps+"@"+document.getElementById('hdtop').style.visibility+"@"+exclude_systems+"@";
+  document.cookie = "easm="+escape(cookiedata)+";expires=Sat, 31-Dec-2050 00:00:00 GMT";
+}
+
+function set_exclude(elist) {
+
+  /***********************************************/
+  /** Function:  set_exclude()                  **/
+  /** Input   :  elist                          **/
+  /**                                           **/
+  /** Purpose :  To set the Excluded Systems    **/
+  /**            list.                          **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // Take a list of accepted characters, then compare to make sure each character
+  // from 'elist' occurs in it.
+
+  var setlist = "1234567890: ";
+  var result = "";
+  var temp;
+  for (a=0;a<=elist.length;a++) {
+    temp = elist.charAt(a);
+    if (setlist.indexOf(temp) != -1) {
+      result += temp;
+    }
+  }
+
+  // Make the list into an array, then run through each element and compare to see
+  // if it fits our criteria.
+
+  result = result.split(" ");
+  result2 = " ";
+  for (a=0;a<result.length;a++) {
+    temp = result[a].split(":");
+    if (!isNaN(temp[0]) && temp[0].length < 3 && temp[0] != "" && !isNaN(temp[1]) && temp[1].length < 3 && temp[1] != "" && result[a].indexOf(":") != -1 && result2.indexOf(" "+result[a]+" ") == -1) {
+      result2 += result[a]+" ";
+    }
+  }
+
+  // Now set the list we made.
+
+  exclude_systems = result2;
+  set_cookie_data();
+  exc_preset();
+}
+
+function exc_preset() {
+
+  /***********************************************/
+  /** Function:  exc_preset()                   **/
+  /** Input   :  N/A                            **/
+  /**                                           **/
+  /** Purpose :  Used to set the data display   **/
+  /**            for Excluded Systems           **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  var inv = exclude_systems;
+  if (inv != " ") {
+    var inv2 = inv.substring(1,(inv.length-1));
+    document.getElementById('excinput').value = inv2;
+    document.getElementById('exclist').innerHTML = inv2.replace(/ /g,", ");
+    textexclude_systems = inv2.replace(/ /g,", ");
+  }
+  else {
+    document.getElementById('excinput').value = "";
+    document.getElementById('exclist').innerHTML = "None";
+    textexclude_systems = "None";
+  }
+}
+
+function highlight_over(highnum,ccom) {
+
+  /***********************************************/
+  /** Function:  highlight_over()               **/
+  /** Input   :  highnum, ccom                  **/
+  /**                                           **/
+  /** Purpose :  Used to handle the mouseover   **/
+  /**            of the main data table.        **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  over_color = document.getElementById('h1c'+highnum).style.background;
+  var hcl = highlight_mouseover;
+  
+  document.getElementById('h1c'+highnum).style.background = hcl;
+  document.getElementById('h2c'+highnum).style.background = hcl;
+  document.getElementById('h3c'+highnum).style.background = hcl;
+  document.getElementById('h4c'+highnum).style.background = hcl;
+  document.getElementById('h5c'+highnum).style.background = hcl;
+  document.getElementById('h7c'+highnum).style.background = hcl;
+  document.getElementById('h9c'+highnum).style.background = hcl;
+
+  if (ccom == "yes") {
+    document.getElementById('h6c'+highnum).style.background = hcl;
+    document.getElementById('h8c'+highnum).style.background = hcl;
+  }
+  
+}
+
+function highlight_out(highnum,ccom) {
+
+  /***********************************************/
+  /** Function:  highlight_out()                **/
+  /** Input   :  highnum, ccom                  **/
+  /**                                           **/
+  /** Purpose :  Used to handle the mouseout    **/
+  /**            of the main data table.        **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  var highc = "#222222";
+  if (high_planets.indexOf("@"+highnum+"@") != -1) highc = highlight_color;
+
+  document.getElementById('h1c'+highnum).style.background = highc;
+  document.getElementById('h2c'+highnum).style.background = highc;
+  document.getElementById('h3c'+highnum).style.background = highc;
+  document.getElementById('h4c'+highnum).style.background = highc;
+  document.getElementById('h5c'+highnum).style.background = highc;
+  document.getElementById('h7c'+highnum).style.background = highc;
+  document.getElementById('h9c'+highnum).style.background = highc;
+
+  if (ccom == "yes") {
+    document.getElementById('h6c'+highnum).style.background = highc;
+    document.getElementById('h8c'+highnum).style.background = highc;
+  }
+  
+  over_color = "";
+
+}
+
+function highlight_select(highnum) {
+
+  /***********************************************/
+  /** Function:  highlight_select()             **/
+  /** Input   :  highnum                        **/
+  /**                                           **/
+  /** Purpose :  Set/Unsets the highlighted     **/
+  /**            name box.                      **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  if (high_planets.indexOf("@"+highnum+"@") != -1) {
+    eval('high_planets = high_planets.replace(/@'+highnum+'@/g,"@")');
+  }
+  else {
+    high_planets += highnum+"@";
+  }
+  highlight_write();
+}
+
+function highlight_write() {
+
+  /***********************************************/
+  /** Function:  highlight_write()              **/
+  /** Input   :  N/A                            **/
+  /**                                           **/
+  /** Purpose :  Writes the Planets the user    **/
+  /**            has selected to the            **/
+  /**            highlighted box.               **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  var hcc = high_planets.split("@"),b;
+  var result = "";
+
+  for (a=0;a<hcc.length;a++) {
+    if (hcc[a] != "") {
+      b = Number(hcc[a]);
+      result += sname[b]+" ";
+      result += "("+sloc[b]+") ";
+	  result += "("+scord[b]+") ";
+      result += sn(sland[b])+" ";
+      result += sn(snw[b])+"\n";
+    }
+  }
+
+  if (result == "") result = "Highlighted Planets Will Appear Here.";
+
+  document.getElementById('highs').value = result;
+}
+
+function highlighting_onoff(chch) {
+
+  /***********************************************/
+  /** Function:  highlight_onoff()              **/
+  /** Input   :  chch                           **/
+  /**                                           **/
+  /** Purpose :  Turns highlighting on/off      **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  if (chch) {
+    document.getElementById('hdtop').style.visibility = "visible";
+    document.getElementById('hdbot').style.visibility = "visible";
+    document.getElementById('hdhel').style.visibility = "visible";
+  }
+  else {
+    high_planets = "@";
+    highlight_write()
+    document.getElementById('hdtop').style.visibility = "hidden";
+    document.getElementById('hdbot').style.visibility = "hidden";
+    document.getElementById('hdhel').style.visibility = "hidden";
+  }
+  set_cookie_data();
+
+  if (sname.length != 0) {
+    writes(0);
+  }
+
+}
+
+function comparestats(inv) {
+
+  /***********************************************/
+  /** Function:  comparestats()                 **/
+  /** Input   :  inv                            **/
+  /**                                           **/
+  /** Purpose :  This will upload Land and NW   **/
+  /**            differences.                   **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // This removes line feed characters, and replaces new line characters with "@".
+
+  inv = inv.replace(/\r/g,"")
+  inv = inv.replace(/\n/g,"@");
+
+  // This then splits the text into an array.
+
+  inv = inv.split("@");
+
+  // a, b, and c are working variables. They are only used for calculations.
+
+  var a,b,c,p_name,p_loc,p_cord,p_planet,p_land,p_nw,p_check;
+
+  for (i=0;i<inv.length;i++) {
+
+    // The following lines are used to find the data
+
+    a = inv[i].indexOf("  (");
+    p_name = inv[i].substring(0,a);
+    b = (a+3);
+    c = inv[i].indexOf(") ");
+    p_loc = inv[i].substring(b,c);
+	a = inv[i].indexOf("(X:");
+	p_cord = inv[i].substring(a+1,a+8);
+    a = inv[i].indexOf(",Y")+6;
+    b = inv[i].substring(a,inv[i].length).replace(/,/g,"").split(" ");
+    p_planet = b[0];
+    p_land = Number(b[1]);
+    p_nw = Number(b[2]);
+
+    // This if statement checks to see if everything is correct, and if it is, adds the planet.
+
+    if (p_name != null && p_name != "" && p_loc != null && p_loc != "" && p_loc.indexOf(":") != -1 && p_cord != null && p_cord != "" && p_cord.indexOf("X:") == 0 && p_loc.length <= 5 && p_planet != null && p_planet != "" && existing_planets.indexOf("@"+p_planet+"@") != -1 && p_land != null && !isNaN(p_land) && p_land < 9000000 && p_land > 0 && p_nw != null && !isNaN(p_nw) && p_nw < 9000000000 && p_nw > 0) {
+
+      p_check = -1;
+
+      for (x=0;x<pname.length;x++) {
+        if (p_name == pname[x]) {
+          p_check = x;
+          x = pname.length;
+        }
+      }
+      if (p_check != -1) {
+        pgland[p_check] = parseInt(pland[p_check]-p_land);
+        pgnw[p_check] = parseInt(pnw[p_check]-p_nw);
+      }
+    }
+  }
+
+  if (pgland.length != 0) {
+    for (a=0;a<pname.length;a++) {
+      if (pgland[a] == null) {
+        pgland[a] = "#";
+        pgnw[a] = "#";
+      }
+    }
+    high_planets = "@";
+    highlight_write()
+    document.getElementById('stat').innerHTML = "Comparison results are now uploaded.";
+    changetool(0);
+    checkdb();
+    hidebox('compare');
+  }
+  else {
+    document.getElementById('stat').innerHTML = "The previous scan did not contain any Planets. Please try again.";
+    checkdb();
+  }
+}
+
+function showbox(which,x1,y1,effect) {
+
+  /***********************************************/
+  /** Function:  showbox()                      **/
+  /** Input   :  which,x1,y1,effect             **/
+  /**                                           **/
+  /** Purpose :  Used to show DIV elements,     **/
+  /**            based on the input.            **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  if (document.getElementById('exc_span') != null && effect == null) {
+    document.getElementById('exc_span').innerHTML = "";
+  }
+  var in1 = document.getElementById(which);
+  in1.style.left = x1;
+  in1.style.top = y1;
+  in1.style.visibility = "visible";
+}
+
+function hidebox(which,effect) {
+
+  /***********************************************/
+  /** Function:  hidebox()                      **/
+  /** Input   :  which,effect                   **/
+  /**                                           **/
+  /** Purpose :  Used to hide DIV elements,     **/
+  /**            based on the input.            **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  if (document.getElementById('exc_span') != null && effect == null) {
+    document.getElementById('exc_span').innerHTML = exc_data;
+  }
+  var in1 = document.getElementById(which);
+  in1.style.left = -1000;
+  in1.style.top = -1000;
+  in1.style.visibility = "hidden";
+}
+
+function showops() {
+
+  /***********************************************/
+  /** Function:  showops()                      **/
+  /** Input   :  N/A                            **/
+  /**                                           **/
+  /** Purpose :  Makes the Options box visible. **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  var inv2 = document.getElementById('pppbox');
+  var inv3 = document.getElementById('rpsbox');
+  document.getElementById('hdhel').style.visibility = "hidden";
+  inv2.value = ppp;
+  inv3.value = rps;
+  showbox("ops",171,118);
+}
+
+function hideops() {
+
+  /***********************************************/
+  /** Function:  hideops()                      **/
+  /** Input   :  N/A                            **/
+  /**                                           **/
+  /** Purpose :  Makes the Options box hidden.  **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  var inv2 = document.getElementById('pppbox');
+  var inv3 = document.getElementById('rpsbox');
+  if (document.getElementById('hdtop').style.visibility == "visible" || document.getElementById('hdtop').style.visibility == "") {
+    document.getElementById('hdhel').style.visibility = "visible";
+  }
+  hidebox("ops");
+  inv2.value = ppp;
+  inv3.value = rps;
+}
+
+function changestats(newppp,newrps) {
+
+  /***********************************************/
+  /** Function:  changestats()                  **/
+  /** Input   :  newppp,newrps                  **/
+  /**                                           **/
+  /** Purpose :  Confirms new Options.          **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  var inv2 = document.getElementById('pppbox');
+  var inv3 = document.getElementById('rpsbox');
+
+  // Make sure the user didn't put in letters.
+
+  if (isNaN(newppp) || isNaN(newrps)) {
+    inv2.value = ppp;
+    inv3.value = rps;
+    return;
+  }
+  newppp = Number(newppp);
+  newrps = Number(newrps);
+  if (newppp < 1 || newrps < 1 || (newppp == ppp && newrps == rps)) {
+    inv2.value = ppp;
+    inv3.value = rps;
+    return;
+  }
+  alert("The new values have been set.");
+  ppp = newppp;
+  rps = newrps;
+  set_cookie_data();
+  inv2.value = ppp;
+  inv3.value = rps;
+  hideops();
+}
+
+function sn(innum) {
+
+  /***********************************************/
+  /** Function:  sn()                           **/
+  /** Input   :  innum                          **/
+  /**                                           **/
+  /** Purpose :  To add commas around whole     **/
+  /**            numbers. This returns odd      **/
+  /**            results if used with floating  **/
+  /**            numbers.                       **/
+  /**                                           **/
+  /** Returns :  Number with added commas.      **/
+  /***********************************************/
+
+  var pronum = "";
+  var stringnum = String(innum);
+  var tem = 0;
+  for (b=stringnum.length;b>=0;b--) {
+    random = stringnum.charAt(b)+pronum;
+    if (tem >= 3) {
+      tem = 0;
+      if (b <= 0) {
+        pronum = random;
+      } else {
+        pronum = ","+random;
+      }
+    } else {
+      pronum = random;
+    }
+    tem++;
+  }
+  return pronum;
+}
+
+function changetool(tool) {
+
+  /***********************************************/
+  /** Function:  changetool()                   **/
+  /** Input   :  tool                           **/
+  /**                                           **/
+  /** Purpose :  Changes the current search     **/
+  /**            tool to another one, through   **/
+  /**            an array with the HTML code    **/
+  /**            in it.                         **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // Returns an error if the Database isn't loaded.
+
+  if (pname.length == 0) {
+    document.getElementById('stat').innerHTML = "There is no Database loaded.<br>You must load one before you can search.";
+  }
+  else {
+    var sts_spot1 = "";
+    var sts_spot2 = "";
+    if (pgland.length != 0) {
+      sts_spot1 = '<option value="gland">Land Diff.';
+      sts_spot2 = '<option value="gnw">Networth Diff.';
+    }
+    var static_sort = '<br><br> - Sorted by <select id="sortby" class="dropdown"><option value="land">Land'+sts_spot1+'<option value="nw">Networth'+sts_spot2+'<option value="ratio">NW/Land Ratio<option value="planet">Planet Type</select> <input id="inirs" type="checkbox"> Reverse Sort &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span id="exc_span">'+exc_data+'</span></form>';
+    var soptions = new Array(
+	'<form onsubmit="basic(document.getElementById(\'put1\').value,document.getElementById(\'put2\').value,document.getElementById(\'put3\').value,document.getElementById(\'sortby\').value);return false;">• Find Planets between <input maxlength=12 id="put1" type="text" class="input"> and <input maxlength=12 id="put2" type="text" class="input"> <select id="put3" class="dropdown"><option value="land">Land<option value="nw">Networth<option value="ratio">NW/Land Ratio</select> <input type="submit" class="button" value=" Go ">',
+	'<form onsubmit="ftarget(document.getElementById(\'put1\').value,document.getElementById(\'put2\').value,document.getElementById(\'sortby\').value);return false;">• I have <input maxlength=12 id="put1" type="text" class="input"> Land and <input maxlength=12 id="put2" type="text" class="input"> Networth. <input type="submit" class="button" value="Find Targets">',
+	'<form onsubmit="findname(document.getElementById(\'put1\').value,document.getElementById(\'sortby\').value);return false;">• Find Planets with <input maxlength=40 id="put1" type="text" class="input"> in their name. <input type="submit" class="button" value=" Go ">',
+	'<form onsubmit="findloc(document.getElementById(\'put1\').value,document.getElementById(\'put2\').value,document.getElementById(\'sortby\').value);return false;">• Find Planets in Galaxy <input maxlength=2 id="put1" type="text" class="input"> and System <input maxlength=2 id="put2" type="text" class="input"> <input type="submit" class="button" value=" Go ">',
+	' '
+    );
+    if (soptions[tool] != " ") document.getElementById('tools').innerHTML = soptions[tool]+static_sort;
+    else document.getElementById('tools').innerHTML = soptions[tool];
+  }
+}
+
+function sortf(tsearch,tra) {
+
+  /***********************************************/
+  /** Function:  sortf()                        **/
+  /** Input   :  tsearch,tra                    **/
+  /**                                           **/
+  /** Purpose :  Sorts the list of Planets and  **/
+  /**            stores the sort into arrays    **/
+  /**            for later use.                 **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // Setting some Calculation vars, and temporary arrays.
+
+  var temp2 = lastsearch.split("@");
+  var temp3 = temp2[1];
+  temp2 = temp2[0];
+  if (temp2 == tsearch) {
+    if (temp3 == "n") {
+      tra = "r";
+    }
+    else {
+      tra = "n";
+    }
+  }
+  var temp,hold = -9999999999,held;
+  if (tra == "r") hold = 9999999999;
+  var tname = fname;
+  var tloc = floc;
+  var tcord = fcord;
+  var tplanet = fplanet;
+  var tland = fland;
+  var tnw = fnw;
+  var tratio = fratio;
+  var tgland = fgland;
+  var tgnw = fgnw;
+  var searchederr = 0;
+  if (lastsearch != "@") searchederr = 1;
+  sname = new Array();
+  sloc = new Array();
+  scord = new Array();
+  splanet = new Array();
+  sland = new Array();
+  snw = new Array();
+  sratio = new Array();
+  sgland = new Array();
+  sgnw = new Array();
+
+  // Confusing looking sorting mechanism. I won't explain, and I'll assume you understand it.
+
+  for (a=0;a<tname.length;a++) {
+    if (sname.length >= rps) {
+      if (searchederr == 0) {
+        alert("Your search has returned over "+rps+" results.\n\nThere may be more Planets that will not be displayed.");
+      }
+      a = tname.length;
+    }
+    else {
+      held = -1;
+      for (i=0;i<tname.length;i++) {
+        if (tsearch == "planet") {
+          temp = existing_planets.indexOf(tplanet[i]);
+          if (tra == "n") {
+            if (temp != 0 && temp > hold) {
+              hold = temp;
+              held = i;
+            }
+          }
+          else {
+            if (temp != 0 && temp < hold) {
+              hold = temp;
+              held = i;
+            }
+          }
+        }
+        else {
+          eval("temp = t"+tsearch+"[i]");
+          if (tra == "n") {
+            if (temp != "@" && temp > hold) {
+              hold = temp;
+              held = i;
+            }
+          }
+          else {
+            if (temp != "@" && temp < hold) {
+              hold = temp;
+              held = i;
+            }
+          }
+        }
+      }
+      if (held == -1) {
+        for (i=0;i<tname.length;i++) {
+          eval("temp = t"+tsearch+"[i]");
+          if (temp == "#") {
+            held = i;
+          }
+        }
+      }
+      hold = -9999999999;
+      if (tra == "r") hold = 9999999999;
+      sname[a] = tname[held];
+      sloc[a] = tloc[held];
+	  scord[a] = tcord[held];
+      splanet[a] = tplanet[held];
+      sland[a] = tland[held];
+      snw[a] = tnw[held];
+      sratio[a] = tratio[held];
+      sgland[a] = tgland[held];
+      sgnw[a] = tgnw[held];
+      tname[held] = "@";
+      tloc[held] = "@";
+	  tcord[held] = "@";
+      tplanet[held] = "@";
+      tland[held] = "@";
+      tnw[held] = "@";
+      tratio[held] = "@";
+      tgland[held] = "@";
+      tgnw[held] = "@";
+    }
+  }
+  fname = sname;
+  floc = sloc;
+  fcord = scord;
+  fplanet = splanet;
+  fland = sland;
+  fnw = snw;
+  fratio = sratio;
+  fgland = sgland;
+  fgnw = sgnw;
+  lastsearch = tsearch+"@"+tra;
+}
+
+function clearf() {
+
+  /***********************************************/
+  /** Function:  clearf()                       **/
+  /** Input   :  N/A                            **/
+  /**                                           **/
+  /** Purpose :  Clears the results that are    **/
+  /**            currently loaded.              **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  fname = new Array();
+  floc = new Array();
+  fcord = new Array();
+  fplanet = new Array();
+  fland = new Array();
+  fnw = new Array();
+  fratio = new Array();
+  fgland = new Array();
+  fgnw = new Array();
+  sname = new Array();
+  sloc = new Array();
+  scord = new Array();
+  splanet = new Array();
+  sland = new Array();
+  snw = new Array();
+  sratio = new Array();
+  sgland = new Array();
+  sgnw = new Array();
+  lastsearch = "@";
+  high_planets = "@";
+  highlight_write()
+  document.getElementById('stat').innerHTML = "Results will appear here.";
+}
+
+function resortf(reso) {
+
+  /***********************************************/
+  /** Function:  resortf()                      **/
+  /** Input   :  reso                           **/
+  /**                                           **/
+  /** Purpose :  Used to set-up the base sort   **/
+  /**            again, with a different        **/
+  /**            sorting parameter.             **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // Re-sorts the currently found results, and then re-writes them
+
+  high_planets = "@";
+  highlight_write()
+  sortf(reso,"n");
+  writes(0);
+}
+
+function writes(startat) {
+
+  /***********************************************/
+  /** Function:  writes()                       **/
+  /** Input   :  startat                        **/
+  /**                                           **/
+  /** Purpose :  Writes out the value of the    **/
+  /**            search arrays, into a table    **/
+  /**            that the user can read.        **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // Sets the beginning of the Table.
+
+  var highc = "#222222",highcode = "",highcode2 = "",highcode3 = "",com_checker = "",hset;
+  var sgcol = "";
+  var sgtok = "";
+  var nof = startat;
+  var prevnextbar;
+  var result = "<tr>\n";
+  result += "<td class='td2' align=center bgcolor=black width=25>&nbsp;</td><td class='td2' align=center bgcolor=#555555 width=200>";
+  result += '<b>Name</b>';
+  result += "</td><td class='td2' align=center bgcolor=#555555 width=60>";
+  result += '<b>Location</b>';
+  result += "</td><td class='td2' align=center bgcolor=#555555 width=100>";
+  result += '<b>Cords</b>';
+  result += "</td><td class = 'td2' align=center bgcolor=#555555 width=110>";
+  result += '<b><a class="top" href="#" onclick="resortf(\'planet\');return false;">Planet</a></b>';
+  result += "</td><td class='td2' align=center bgcolor=#555555 width=60>";
+  result += '<b><a class="top" href="#" onclick="resortf(\'land\');return false;">Land</a></b>';
+  if (pgland.length != 0) {
+    result += "</td><td class='td2' align=center bgcolor=#555555 width=50>";
+    result += '<b><a class="top" href="#" onclick="resortf(\'gland\');return false;">L. Diff</a></b>';
+  }
+  result += "</td><td class='td2' align=center bgcolor=#555555 width=120>";
+  result += '<b><a class="top" href="#" onclick="resortf(\'nw\');return false;">Networth</a></b>';
+  if (pgnw.length != 0) {
+    result += "</td><td class='td2' align=center bgcolor=#555555 width=80>";
+    result += '<b><a class="top" href="#" onclick="resortf(\'gnw\');return false;">NW. Diff</a></b>';
+  }
+  result += "</td><td class='td2' align=center bgcolor=#555555 width=40>";
+  result += '<b><a class="top" href="#" onclick="resortf(\'ratio\');return false;">Ratio</a></b>';
+  result += "</td>\n";
+  result += "</tr>\n";
+
+  // Runs through each planet that has been sorted.
+
+  for (a=startat;a<sname.length && a<(startat+ppp);a++) {
+    nof++;
+    highc = "#222222";
+    hset = "bgcolor="+highc;
+    if (document.getElementById('highon').checked) {
+      if (high_planets.indexOf("@"+a+"@") != -1) highc = highlight_color;
+      com_checker = "no";
+      if (pgland.length != 0) com_checker = "yes";
+
+      highcode = "highlight_over("+a+",\""+com_checker+"\");";
+      highcode2 = "highlight_out("+a+",\""+com_checker+"\");";
+      highcode3 = "highlight_select("+a+");";
+
+      hset = "bgcolor="+highc+" onmouseover='"+highcode+"' onmouseout='"+highcode2+"' onclick='"+highcode3+"'";
+    }
+    result += "<tr>\n";
+    result += "<td class='td2' bgcolor=black>"+(a+1)+"</td>";
+    result += "<td id='h1c"+a+"' class='td2' "+hset+">"+sname[a]+"</td>";
+    result += "<td id='h2c"+a+"' class='td2' "+hset+">("+sloc[a]+")</td>";
+	result += "<td id='h3c"+a+"' class='td2' "+hset+">("+scord[a]+")</td>";
+    result += "<td id='h4c"+a+"' class='td2' "+hset+">"+splanet[a]+"</td>";
+    result += "<td id='h5c"+a+"' class='td2' "+hset+">"+sn(sland[a])+"</td>";
+
+    if (pgland.length != 0) {
+      if (sgland[a] == 0) {
+        sgtok = "0";
+        sgcol = "#FFFF99";
+      }
+      else if (sgland[a] > 0) {
+        sgtok = "+ "+sn(sgland[a]);
+        sgcol = "#99FFCC";
+      }
+      else if (sgland[a] == "#") {
+        sgtok = "&nbsp;";
+        sgcol = "white";
+      }
+      else {
+        sgtok = "- "+sn(Number(String(sgland[a]).replace(/-/g,"")));
+        sgcol = "#FF5555";
+      }
+      result += "<td id='h6c"+a+"' class='td2' "+hset+"><font color="+sgcol+">"+sgtok+"</font></td>";
+    }
+    result += "<td id='h7c"+a+"' class='td2' "+hset+">"+sn(snw[a])+"</td>";
+    if (pgnw.length != 0) {
+      if (sgnw[a] == 0) {
+        sgtok = "0";
+        sgcol = "#FFFF99";
+      }
+      else if (sgnw[a] > 0) {
+        sgtok = "+ "+sn(sgnw[a]);
+        sgcol = "#99FFCC";
+      }
+      else if (sgnw[a] == "#") {
+        sgtok = "&nbsp;";
+        sgcol = "white";
+      }
+      else {
+        sgtok = "- "+sn(Number(String(sgnw[a]).replace(/-/g,"")));
+        sgcol = "#FF5555";
+      }
+      result += "<td id='h8c"+a+"' class='td2' "+hset+"><font color="+sgcol+">"+sgtok+"</font></td>";
+    }
+    result += "<td id='h9c"+a+"' class='td2' "+hset+">"+sn(sratio[a])+"/1</td>";
+    result += "</tr>\n";
+  }
+
+  // Sets the Previous and Next links at the top and bottom.
+
+  var temp = "";
+  if (startat == 0) temp = '<font class="nomore">« Previous</font>';
+  else temp = '<font class="more"><a href="#" onclick="hpswitch('+(startat-ppp)+');return false;">« Previous</a></font>';
+  temp += "&nbsp;&nbsp;&nbsp;&nbsp;";
+  if (nof >= sname.length) temp2 = '<font class="nomore">Next »</font>';
+  else temp2 = '<font class="more"><a  href="#" onclick="writes('+nof+');return false;">Next »</a></font>';
+
+  prevnextbar = "<tr><td class='td2' colspan=9 align=right><a href='#' onclick=\"clearf();return false;\">Clear Results</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+(temp+temp2)+"</td></tr>\n";
+
+  result = prevnextbar+result;
+  result = "<table class='table2' bgcolor=black cellpadding=2 cellspacing=3 border=1>\n"+result;
+  result += prevnextbar;
+
+  result = "&nbsp;&nbsp;Displaying <b>"+(startat+1)+"</b> - <b>"+sn(nof)+"</b> of <b>"+sname.length+"</b> result(s).\n<br>\n<br>"+result;
+  result += "</table>";
+  result += "<br><br>";
+
+  // Writes the table out.
+
+  document.getElementById('stat').innerHTML = result;
+}
+
+function hpswitch(inv1) {
+
+  /***********************************************/
+  /** Function:  hpswitch()                     **/
+  /** Input   :  inv1                           **/
+  /**                                           **/
+  /** Purpose :  Makes sure negative numbers    **/
+  /**            can't be used when you hit     **/
+  /**            'Previous'.                    **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  if (inv1 < 0) {
+    inv1 = 0;
+  }
+  writes(inv1);
+}
+
+function basic(inv1,inv2,inv3,inv4) {
+
+  /***********************************************/
+  /** Function:  basic()                        **/
+  /** Input   :  inv1,inv2,inv3,in4             **/
+  /**                                           **/
+  /** Purpose :  Searches the uploaded Planets  **/
+  /**            looking for specific land or   **/
+  /**            nw ranges, specified by the    **/
+  /**            user.                          **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // Check to see if the input is a number.
+  if (inv1 == "" || isNaN(inv1) || inv1 < 1 || inv2 == "" || isNaN(inv2) || inv2 < 1) {
+    document.getElementById('stat').innerHTML = "You must use only numbers greater than 0.";
+    return;
+  }
+
+  // Cuts off any floating numbers the user may have entered.
+
+  inv1 = parseInt(inv1);
+  inv2 = parseInt(inv2);
+
+  // Returns error if the first number is greater than the second.
+
+  if (inv1 > inv2) {
+    document.getElementById('stat').innerHTML = "The first input must be smaller than the second one.";
+    return;
+  }
+
+  // Resets the currently found Planets.
+
+  fname = new Array();
+  floc = new Array();
+  fcord = new Array();
+  fplanet = new Array();
+  fland = new Array();
+  fnw = new Array();
+  fratio = new Array();
+  fgland = new Array();
+  fgnw = new Array();
+  var temp;
+
+  // Runs through every Planet, finding ones that match our criteria, set by the user.
+
+  for (a=0;a<pname.length;a++) {
+    eval("temp = p"+inv3+"[a]");
+    if (temp >= inv1 && temp <= inv2 && exclude_systems.indexOf(" "+ploc[a]+" ") == -1) {
+      fname[fname.length] = pname[a];
+      floc[floc.length] = ploc[a];
+	  fcord[fcord.length] = pcord[a];
+      fplanet[fplanet.length] = pplanet[a];
+      fland[fland.length] = pland[a];
+      fnw[fnw.length] = pnw[a];
+      fratio[fratio.length] = pratio[a];
+      fgland[fgland.length] = pgland[a];
+      fgnw[fgnw.length] = pgnw[a];
+    }
+  }
+
+  if (fname.length == 0) {
+    document.getElementById('stat').innerHTML = "Your search returned <b>0</b> results.<br>Please try again, or choose another search option.";
+    return;
+  }
+
+  // Sorts out the Planets, and then writes them.
+
+  lastsearch = "@";
+  if (document.getElementById('inirs').checked) sortf(inv4,"r");
+  else sortf(inv4,"n");
+  writes(0);
+}
+
+function ftarget(inv1,inv2,inv3) {
+
+  /***********************************************/
+  /** Function:  ftarget()                      **/
+  /** Input   :  inv1,inv2,inv3                 **/
+  /**                                           **/
+  /** Purpose :  Looks for good targets between **/
+  /**            50% - 130% of the Land, and    **/
+  /**            90% - 0% of the NW the user    **/
+  /**            specifies.                     **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // Check to see if the input is a number.
+
+  if (inv1 == "" || isNaN(inv1) || inv1 < 1 || inv2 == "" || isNaN(inv2) || inv2 < 1) {
+    document.getElementById('stat').innerHTML = "You must use only numbers greater than 0.";
+    return;
+  }
+
+  // Cuts off any floating numbers the user may have entered.
+
+  inv1 = parseInt(inv1);
+  inv2 = parseInt(inv2);
+
+  // Resets the currently found Planets.
+
+  fname = new Array();
+  floc = new Array();
+  fcord = new Array();
+  fplanet = new Array();
+  fland = new Array();
+  fnw = new Array();
+  fratio = new Array();
+  fgland = new Array();
+  fgnw = new Array();
+  var temp = Math.round(inv1/2);
+  var temp2 = parseInt(inv1*1.30);
+  var temp3 = parseInt(inv2/1.1);
+
+  // Runs through every Planet, finding ones that match our criteria, set by the user.
+
+  for (a=0;a<pname.length;a++) {
+    if (pland[a] >= temp && pland[a] <= temp2 && pnw[a] <= temp3 && exclude_systems.indexOf(" "+ploc[a]+" ") == -1) {
+      fname[fname.length] = pname[a];
+      floc[floc.length] = ploc[a];
+	  fcord[fcord.length] = pcord[a];
+      fplanet[fplanet.length] = pplanet[a];
+      fland[fland.length] = pland[a];
+      fnw[fnw.length] = pnw[a];
+      fratio[fratio.length] = pratio[a];
+      fgland[fgland.length] = pgland[a];
+      fgnw[fgnw.length] = pgnw[a];
+    }
+  }
+
+  if (fname.length == 0) {
+    document.getElementById('stat').innerHTML = "Your search returned <b>0</b> results.<br>Please try again, or choose another search option.";
+    return;
+  }
+
+  // Sorts out the Planets, and then writes them.
+
+  lastsearch = "@";
+  if (document.getElementById('inirs').checked) sortf(inv3,"r");
+  else sortf(inv3,"n");
+  writes(0);
+}
+
+function findname(inv1,inv2) {
+
+  /***********************************************/
+  /** Function:  findname()                     **/
+  /** Input   :  inv1,inv2                      **/
+  /**                                           **/
+  /** Purpose :  Searches for Planets           **/
+  /**            containing text specified by   **/
+  /**            the user.                      **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // Check to see if the input is not null
+
+  if (inv1 == "") {
+    document.getElementById('stat').innerHTML = "You did not specify what name to search for.";
+    return;
+  }
+
+  // Resets the currently found Planets.
+
+  fname = new Array();
+  floc = new Array();
+  fcord = new Array();
+  fplanet = new Array();
+  fland = new Array();
+  fnw = new Array();
+  fratio = new Array();
+  fgland = new Array();
+  fgnw = new Array();
+  var temp = inv1.toLowerCase();
+  var temp2;
+
+  // Runs through every Planet, finding ones that match the name specified by the user.
+
+  for (a=0;a<pname.length;a++) {
+    temp2 = pname[a].toLowerCase();
+    if (temp2.indexOf(temp) != -1 && exclude_systems.indexOf(" "+ploc[a]+" ") == -1) {
+      fname[fname.length] = pname[a];
+      floc[floc.length] = ploc[a];
+	  fcord[fcord.length] = pcord[a];
+      fplanet[fplanet.length] = pplanet[a];
+      fland[fland.length] = pland[a];
+      fnw[fnw.length] = pnw[a];
+      fratio[fratio.length] = pratio[a];
+      fgland[fgland.length] = pgland[a];
+      fgnw[fgnw.length] = pgnw[a];
+    }
+  }
+
+  if (fname.length == 0) {
+    document.getElementById('stat').innerHTML = "Your search returned <b>0</b> results.<br>Please try again, or choose another search option.";
+    return;
+  }
+
+  // Sorts out the Planets, and then writes them.
+
+  lastsearch = "@";
+  if (document.getElementById('inirs').checked) sortf(inv2,"r");
+  else sortf(inv2,"n");
+  writes(0);
+}
+
+function findloc(inv1,inv2,inv3) {
+
+  /***********************************************/
+  /** Function:  findloc()                      **/
+  /** Input   :  inv1,inv2,inv3                 **/
+  /**                                           **/
+  /** Purpose :  Looks up all Planets within    **/
+  /**            the Galaxy and/or System the   **/
+  /**            user specifies.                **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // Check to see if the input is valid.
+
+  var temperror = -1;
+
+  if (inv1 == "" && inv2 == "") {
+    document.getElementById('stat').innerHTML = "You need to specify either the Galaxy, System, or both.";
+    return;
+  }
+  if (inv1 != "") {
+    if (isNaN(inv1)) {
+      temperror = 0;
+    }
+  }
+  if (inv2 != "") {
+    if (isNaN(inv2)) {
+      temperror = 0;
+    }
+  }
+  if (temperror != -1) {
+    document.getElementById('stat').innerHTML = "Your input must only consist of numbers.";
+    return;
+  }
+
+  // Resets the currently found Planets.
+
+  fname = new Array();
+  floc = new Array();
+  fcord = new Array();
+  fplanet = new Array();
+  fland = new Array();
+  fnw = new Array();
+  fratio = new Array();
+  fgland = new Array();
+  fgnw = new Array();
+  var temp = inv1+":"+inv2;
+  var temp2;
+
+  // Runs through every Planet, finding ones that match the Location specified by the user.
+
+  for (a=0;a<pname.length;a++) {
+    if (inv1 != "" && inv2 != "") {
+      if (ploc[a] == temp) {
+        temp2 = 1;
+      }
+      else {
+        temp2 = -1;
+      }
+    }
+    else {
+      temp2 = ploc[a].indexOf(temp);
+    }
+    if (temp2 != -1 && exclude_systems.indexOf(" "+ploc[a]+" ") == -1) {
+      fname[fname.length] = pname[a];
+      floc[floc.length] = ploc[a];
+	  fcord[fcord.length] = pcord[a];
+      fplanet[fplanet.length] = pplanet[a];
+      fland[fland.length] = pland[a];
+      fnw[fnw.length] = pnw[a];
+      fratio[fratio.length] = pratio[a];
+      fgland[fgland.length] = pgland[a];
+      fgnw[fgnw.length] = pgnw[a];
+    }
+  }
+
+  if (fname.length == 0) {
+    document.getElementById('stat').innerHTML = "Your search returned <b>0</b> results.<br>Please try again, or choose another search option.";
+    return;
+  }
+
+  // Sorts out the Planets, and then writes them.
+
+  lastsearch = "@";
+  if (document.getElementById('inirs').checked) sortf(inv3,"r");
+  else sortf(inv3,"n");
+  writes(0);
+}
+
+function checkdb() {
+
+  /***********************************************/
+  /** Function:  checkdb()                      **/
+  /** Input   :  N/A                            **/
+  /**                                           **/
+  /** Purpose :  To set the top information     **/
+  /**            properly if a Database is      **/
+  /**            loaded or not.                 **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  if (pname.length != 0) {
+    document.getElementById('db1').innerHTML = "Yes";
+    document.getElementById('db2').innerHTML = sn(pname.length)+' &nbsp;&nbsp; <a href="#" onclick="showbox(\'planetsused\',10,0);return false;">Details</a>';
+    document.getElementById('db3').innerHTML = sn(low_land)+" - "+sn(high_land);
+    document.getElementById('db4').innerHTML = sn(low_nw)+" - "+sn(high_nw);
+    document.getElementById('load1').disabled = true;
+    document.getElementById('load2').disabled = false;
+    if (pgland.length != 0) {
+      document.getElementById('gdb1').innerHTML = "Yes";
+      document.getElementById('com1').disabled = true;
+      document.getElementById('com2').disabled = false;
+    }
+    else {
+      document.getElementById('gdb1').innerHTML = "No";
+      document.getElementById('com1').disabled = false;
+      document.getElementById('com2').disabled = true;
+    }
+  }
+  else {
+    document.getElementById('db1').innerHTML = "No";
+    document.getElementById('gdb1').innerHTML = "No";
+    document.getElementById('db2').innerHTML = "0";
+    document.getElementById('db3').innerHTML = "0 - 0";
+    document.getElementById('db4').innerHTML = "0 - 0";
+    document.getElementById('load1').disabled = false;
+    document.getElementById('load2').disabled = true;
+    document.getElementById('com1').disabled = true;
+    document.getElementById('com2').disabled = true;
+  }
+  document.getElementById('data').value = '';
+  document.getElementById('comdata').value = '';
+}
+
+function upload(inv) {
+
+  /***********************************************/
+  /** Function:  upload()                       **/
+  /** Input   :  inv                            **/
+  /**                                           **/
+  /** Purpose :  To upload the Database for the **/
+  /**            Scan Manager.                  **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  // This removes line feed characters, and replaces new line characters with "@".
+
+  inv = inv.replace(/\r/g,"")
+  inv = inv.replace(/\n/g,"@");
+
+  // This then splits the text into an array.
+
+  inv = inv.split("@");
+
+  // a, b, and c are working variables. They are only used for calculations.
+
+  var a,b,c,p_name,p_cord,p_loc,p_planet,p_land,p_nw;
+
+  for (i=0;i<inv.length;i++) {
+
+    // The following lines are used to find the data
+
+    a = inv[i].indexOf("  (");
+    p_name = inv[i].substring(0,a);
+    b = (a+3);
+    c = inv[i].indexOf(") ");
+    p_loc = inv[i].substring(b,c);
+	a = inv[i].indexOf("(X:");
+	p_cord = inv[i].substring(a+1,a+8);
+    a = inv[i].indexOf(",Y")+6;
+    b = inv[i].substring(a,inv[i].length).replace(/,/g,"").split(" ");
+    p_planet = b[0];
+    p_land = Number(b[1]);
+    p_nw = Number(b[2]);
+
+    // This if statement checks to see if everything is correct, and if it is, adds the planet.
+
+    if (p_name != null && p_name != "" && p_loc != null && p_loc != "" && p_loc.indexOf(":") != -1 && p_loc.length <= 5 && p_cord != null && p_cord != "" && p_cord.indexOf("X") == 0 && p_planet != null && p_planet != "" && existing_planets.indexOf("@"+p_planet+"@") != -1 && p_land != null && !isNaN(p_land) && p_land < 9000000 && p_land > 0 && p_nw != null && !isNaN(p_nw) && p_nw < 9000000000 && p_nw > 0) {
+
+      // Appends the current planet to the end of the list.
+
+      pname[pname.length] = p_name;
+      ploc[ploc.length] = p_loc;
+	  pcord[pcord.length] = p_cord;
+      pplanet[pplanet.length] = p_planet;
+      pland[pland.length] = parseInt(p_land);
+      pnw[pnw.length] = parseInt(p_nw);
+      pratio[pratio.length] = parseInt(p_nw/p_land);
+
+      // Checks to see if the highest and lowest values need to be replaced.
+
+      if (high_land == "" || p_land > high_land) high_land = p_land;
+      if (low_land == "" || p_land < low_land) low_land = p_land;
+      if (high_nw == "" || p_nw > high_nw) high_nw = p_nw;
+      if (low_nw == "" || p_nw < low_nw) low_nw = p_nw;
+
+      // Adds to the Planet total.
+
+      if (p_planet == "Arctic") planetnums[0]++;
+      if (p_planet == "Cratered") planetnums[1]++;
+      if (p_planet == "Desert") planetnums[2]++;
+      if (p_planet == "Jungle") planetnums[3]++;
+      if (p_planet == "Mountainous") planetnums[4]++;
+      if (p_planet == "Ocean") planetnums[5]++;
+      if (p_planet == "Terran") planetnums[6]++;
+      if (p_planet == "Volcanic") planetnums[7]++;
+
+    }
+  }
+  if (pname.length != 0) {
+    planetwrte();
+    document.getElementById('stat').innerHTML = "Results will appear here.";
+    checkdb();
+    changetool(0);
+  }
+  else {
+    document.getElementById('stat').innerHTML = "No Planets were found within the results you specified.";
+    checkdb();
+  }
+}
+
+function planetwrte() {
+
+  /***********************************************/
+  /** Function:  planetwrte()                   **/
+  /** Input   :  N/A                            **/
+  /**                                           **/
+  /** Purpose :  To sort out the Planet Total   **/
+  /**            table.                         **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  document.getElementById('parctic').innerHTML = planetnums[0];
+  document.getElementById('pcratered').innerHTML = planetnums[1];
+  document.getElementById('pdesert').innerHTML = planetnums[2];
+  document.getElementById('pjungle').innerHTML = planetnums[3];
+  document.getElementById('pmountainous').innerHTML = planetnums[4];
+  document.getElementById('pocean').innerHTML = planetnums[5];
+  document.getElementById('pterran').innerHTML = planetnums[6];
+  document.getElementById('pvolcanic').innerHTML = planetnums[7];
+
+  document.getElementById('tarctic').innerHTML = (parseInt((planetnums[0] / pname.length) * 10000) / 100)+"%";
+  document.getElementById('tcratered').innerHTML = (parseInt((planetnums[1] / pname.length) * 10000) / 100)+"%";
+  document.getElementById('tdesert').innerHTML = (parseInt((planetnums[2] / pname.length) * 10000) / 100)+"%";
+  document.getElementById('tjungle').innerHTML = (parseInt((planetnums[3] / pname.length) * 10000) / 100)+"%";
+  document.getElementById('tmountainous').innerHTML = (parseInt((planetnums[4] / pname.length) * 10000) / 100)+"%";
+  document.getElementById('tocean').innerHTML = (parseInt((planetnums[5] / pname.length) * 10000) / 100)+"%";
+  document.getElementById('tterran').innerHTML = (parseInt((planetnums[6] / pname.length) * 10000) / 100)+"%";
+  document.getElementById('tvolcanic').innerHTML = (parseInt((planetnums[7] / pname.length) * 10000) / 100)+"%";
+
+}
+
+function unload() {
+
+  /***********************************************/
+  /** Function:  unload()                       **/
+  /** Input   :  N/A                            **/
+  /**                                           **/
+  /** Purpose :  To unload the Planet holding   **/
+  /**            variables, in case the user    **/
+  /**            wishes to.                     **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  changetool(4);
+  high_planets = "@";
+  highlight_write()
+  planetnums = new Array(0,0,0,0,0,0,0,0);
+  document.getElementById('stat').innerHTML = "Results will appear here.";
+  high_land = "";
+  high_nw = "";
+  low_land = "";
+  low_nw = "";
+  pname = new Array();
+  ploc = new Array();
+  pcord = new Array();
+  pplanet = new Array();
+  pland = new Array();
+  pnw = new Array();
+  pratio = new Array();
+  pgland = new Array();
+  pgnw = new Array();
+  fname = new Array();
+  floc = new Array();
+  fcord = new Array();
+  fplanet = new Array();
+  fland = new Array();
+  fnw = new Array();
+  fratio = new Array();
+  fgland = new Array();
+  fgnw = new Array();
+  sname = new Array();
+  sloc = new Array();
+  scord = new Array();
+  splanet = new Array();
+  sland = new Array();
+  snw = new Array();
+  sratio = new Array();
+  sgland = new Array();
+  sgnw = new Array();
+  checkdb();
+}
+
+function gunload() {
+
+  /***********************************************/
+  /** Function:  gunload()                      **/
+  /** Input   :  N/A                            **/
+  /**                                           **/
+  /** Purpose :  To unload comparison stats, if **/
+  /**            the user wishes to.            **/
+  /**                                           **/
+  /** Returns :  N/A                            **/
+  /***********************************************/
+
+  document.getElementById('stat').innerHTML = "Results will appear here.";
+  high_planets = "@";
+  highlight_write()
+  pgland = new Array();
+  pgnw = new Array();
+  checkdb();
+  changetool(0);
+  hidebox('compare');
+}
+
+</script>
+
+
+
+
